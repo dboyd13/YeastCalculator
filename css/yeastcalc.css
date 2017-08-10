@@ -1,0 +1,190 @@
+/* Optimize for desktop browsers */
+
+div.containerdiv {
+  width: 800px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+div.subcontainerdiv {
+  width: 100%;
+}
+
+div.sectiongroup {
+  //width: 100%;
+  display: inline-block;
+}
+
+div.sectionleft {
+  float: left;
+  display: block;
+  width: 110px;
+  background-color: #fcfcfc;
+  margin: 5px;
+  padding: 5px;
+  font-size: 13px;
+  border: 1px solid lightgray;
+  border-radius: 8px;
+}
+
+div.sectionmiddle {
+  display: inline-block;
+  width: 70%;
+  background-color: #fcfcfc;
+  margin: 5px;
+  padding: 5px;
+  font-size: 13px;
+  border: 1px solid lightgray;
+  border-radius: 8px;
+}
+
+div.sectionmiddlegrowth {
+  display: inline-block;
+  background-color: #fcfcfc;
+  font-size: 13px;
+  border-bottom: 1px solid lightgray;
+  width: 100%;
+}
+
+select {
+  display: block;
+  width: 100px;
+  font-size: 12px;
+  border: 1;
+  border-radius: 0;
+  height: 30px;
+  /*    -webkit-appearance: none; */
+}
+
+div.label {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  vertical-align: bottom;
+  display: table-cell;
+  text-align: center;
+  margin: 0;
+  width: 70px;
+  height: auto;
+  font-size: 12px;
+}
+
+div.heading {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: block;
+  margin: 0px;
+  height: 30px;
+  font-size: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+input[type=text] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: block;
+  margin: 0;
+  width: 70px;
+  height: 26px;
+  line-height: 26px;
+  font-size: 12px;
+  border: 1px solid lightblue;
+}
+
+input.result {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: lightyellow;
+  color: black;
+  display: block;
+  margin: 0;
+  width: 70px;
+  height: 26px;
+  line-height: 26px;
+  font-size: 12px;
+  border: 1px solid lightblue;
+}
+
+/* Optimize for tablet and a phone in Landscape orientation */
+
+@media only screen and (max-width: 650px) {
+  div.sectionleft {
+    display: inline-block;
+    width: 100%;
+    background-color: #fcfcfc;
+    padding: 5px;
+    font-size: 13px;
+    border: 1px solid lightgray;
+    border-radius: 8px;
+  }
+  div.containerdiv {
+    width: 90%;
+    margin-right: auto;
+    margin-left: auto;
+  }
+  div.subcontainerdiv {
+    width: auto;
+    margin: 0px;
+  }
+  div.sectionmiddle {
+    width: 100%;
+  }
+}
+
+/* Optimize for Smart phone in Portrait orientation */
+
+@media only screen and (max-width: 556px) {
+  div.subcontainerdiv {
+    width: 100%;
+  }
+  div.sectionleft {
+    width: 100%;
+    float: left;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  div.sectionmiddle {
+    width: 100%;
+    float: left;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  div.sectionmiddlegrowth {
+    margin: 0px;
+    width: 100%;
+  }
+  div.heading {
+    font-size: 20px;
+    width: 100%;
+  }
+  div.label {
+    width: 40%;
+    float: left;
+    display: inline;
+    font-size: 18px;
+    text-align: left;
+  }
+  select {
+    float: right;
+    font-size: 18px;
+    width: 40%
+  }
+  div.result {
+    width: 40%;
+    font-size: 18px;
+    float: right;
+  }
+  input[type=text] {
+    font-size: 18px;
+    float: right;
+    width: 40%;
+  }
+  input.result {
+    font-size: 18px;
+    float: right;
+    width: 40%;
+  }
+  div.sectiongroup {
+    width: 100%;
+    display: inline-block;
+  }
