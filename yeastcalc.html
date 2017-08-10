@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <link rel="stylesheet" href="./css/yeastcalc.css">
+  <link rel="stylesheet" href="./css/pikaday.css">
+  <script type="text/javascript" src="./js/jquery-1.9.1.js"></script>
+  <!--   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <script src="./js/pikaday.js"></script>
+  <script src="./js/pikaday.jquery.js"></script>
+  <title>Yeast Calculator</title>
+
+
+  <script type='text/javascript'>
+    //<![CDATA[
+
+    // GLOBAL - Inputs
+    //-------
+
+    // DME Calculator - initial/default values
+    var StarterOG = 1.037
+    var StarterVol = 2.0
+
+    // Wort Properties - initial/default values
+    var BatchVol = 21
+    var BatchOG = 1.054
+
+    //Liquid Yeast Properties - initial/default values
+    var initialYeastBillions = 100
+    var initialYeastAgeDays = 1
+
+    //Aeration - intial/default value
+    var AerationStartVol1 = 2
+    var AerationStartVol2 = 0
+    var AerationStartVol3 = 0
+
+    // GLOBAL - Vars
+
+    var StarterVolMeasureUnitOptions
+    var StarterDMEWeightMeasureUnitOptions
+    var StarterVolUnit
+    var StarterVolUnitNormalized
+    var StarterDMEmeasureunit
+    var StarterVolUnitCorrected
+    var StarterIntermCalc
+    var StarterDMEgrams
+
+    var BatchVolMeasureUnitOptions
+    var BatchTypeOptions
+    var BatchVolUnitCorrected
+    var BatchTypeSelected
+    var BatchVolUnitSelected
+    var BatchInterimCalc1
+    var BatchYeastCellsNeeded
+    var BatchOptimalPitchingRate
+
+    var YeastAgeHighRes
+    var YeastAgeDays
+    var YeastViabilityPercentage
+    var YeastViableCells
+
+    var TodaysDate
+
+    var AerationMethodOptions
+    var AerationTypeSelected1
+    var AerationVolUnitCorrected1
+    var AerationInterim1Calc1
+    var AerationInterim1Calc2
+
+    var AerationTypeSelected2
+    var AerationTypeSelected3
+
+    $(document).ready(function() {
+
+      //Populate dropdown - Starter Volume Units
+      StarterVolMeasureUnitOptions = '<option value="1">Litres</option><option value="1000">ml</option><option value="0.264">Gallons</option><option value="1.056">Quarts</option>';
+      $("#fieldStarterVolMeasureUnit").html(StarterVolMeasureUnitOptions)
+
+      //Populate dropdown - DME Weight Units
+      StarterDMEWeightMeasureUnitOptions = '<option value="0.0022">Grams</option><option value="0.0625">Ounces</option>';
+      $("#fieldDMEWeightMeasureUnit").html(StarterDMEWeightMeasureUnitOptions)
+
+      //Populate dropdown - Batch Volume Units
+      BatchVolMeasureUnitOptions = '<option value="1000">Litres</option><option value="3785.4">Gallons</option>';
+      $('#fieldBatchVolMeasureUnit').html(BatchVolMeasureUnitOptions)
+
+      BatchTypeOptions = '<option value="750000">Ale</option><option value="1000000">Hybrid</option><option value="1500000">Lager</option>';
+      $('#fieldBatchTypeOptions').html(BatchTypeOptions)
+
+      AerationMethodOptions = '<option value="1">None C.White</option><option value="1.25">Intermittent Shaking (J.Zainasheff)</option><option value="1.5">Stirplate (J.Zainasheff)</option><option value="2">Stirplate (K. Troester)</option>';
+      $('#fieldMethodOfAeration1').html(AerationMethodOptions)
+      $('#fieldMethodOfAeration2').html(AerationMethodOptions)
+      $('#fieldMethodOfAeration3').html(AerationMethodOptions)
+
+      //Populate fields with default/initial values
+      $('#fieldBatchVol').val(BatchVol)
+      $('#fieldBatchOG').val(BatchOG)
+      $('#fieldStarterOG').val(StarterOG)
+      $('#fieldStarterVol').val(StarterVol)
+      $('#fieldYeastInitialCellCount').val(initialYeastBillions)
+      $('#fieldCalcYeastByDate').prop('checked', true)
+      $('#fieldYeastViability').prop('disabled', true)
+      $('#fieldAerationStartVol1').val(AerationStartVol1)
+      $('#fieldAerationStartVol2').val(AerationStartVol2)
+      $('#fieldAerationStartVol3').val(AerationStartVol3)
+
+      //If preferences have been saved (in cookie) then load them
+      loadPreferences()
+      
+      //Setup the date picker
+      var datepicker = new Pikaday({
+        field: $('#datePickerYeastProdDate')[0],
+        format: 'D/M/YYYY',
+        toString(date, format) {
+          const day = date.getDate();
+          const month = date.getMonth() + 1;
+          const year = date.getFullYear();
+          return `${day}/${month}/${year}`;
+        },
+        parse(dateString, format) {
+          // dateString is the result of `toString` method
+          const parts = dateString.split('/');
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1] - 1, 10);
+          const year = parseInt(parts[1], 10);
+          return new Date(year, month, day);
+        },
+        onSelect: function() {
+          YeastAgeHighRes = TodaysDate - datepicker.getDate()
+          calculateAndUpdateYeastViability()
+        }
+      });
+
+      TodaysDate = new Date()
+      datepicker.setDate(TodaysDate)
+
+      //Setup event triggers
+      $('#fieldCalcYeastByDate').change(function() {
+
+        if ($('#datePickerYeastProdDate').css('visibility') == 'visible') {
+          $('#datePickerYeastProdDate').css('visibility', 'hidden')
+          $('#labelCalcYeastByDate').css('visibility', 'hidden')
+          $('#fieldYeastViability').prop('disabled', false);
+        } else {
+          $('#datePickerYeastProdDate').css('visibility', 'visible')
+          $('#labelCalcYeastByDate').css('visibility', 'visible')
+          $('#fieldYeastViability').prop('disabled', true);
+        }
+        calculateAndUpdateYeastViability()
+      });
+
+      $("select").change(function() {
+        calculateAndUpdateAll()
+      });
+      $("input").keyup(function() {
+        calculateAndUpdateAll()
+      });
+      
+      $('#buttonSavePreferences').click(function() {
+        savePreferences()
+      });
+      
+      $('#buttonClearPreferences').click(function() {
+        clearPreferences()
+      });
+
+//       $('#buttonOpenOptions').click(function() {
+//         $('#Preferences').toggle()
+//       });
+
+      //Manually trigger methods for inital load
+      calculateAndUpdateAll()
+    });
+
+    function calculateAndUpdateCellsNeeded() {
+
+      BatchOG = $('#fieldBatchOG').val()
+      BatchVol = $('#fieldBatchVol').val()
+      BatchVolUnitSelected = $("#fieldBatchVolMeasureUnit option:selected").val()
+      BatchVolUnitCorrected = BatchVol * BatchVolUnitSelected
+      BatchTypeSelected = $("#fieldBatchTypeOptions option:selected").val()
+      BatchInterimCalc1 = ((BatchOG * 668.72) - 463.37) - (205.347 * (BatchOG * BatchOG))
+
+      BatchYeastCellsNeeded = (BatchVolUnitCorrected * (BatchInterimCalc1 * BatchTypeSelected)) / 1000000000
+      $('#fieldBatchYeastCellsNeeded').val(BatchYeastCellsNeeded.toFixed(0))
+
+      BatchOptimalPitchingRate = (((BatchYeastCellsNeeded / BatchVol) * 10) / 10)
+      $('#fieldBatchOptimalPitchingRate').val(BatchOptimalPitchingRate.toFixed(1))
+    }
+
+    function calculateAndUpdateDMENeeded() {
+      StarterOG = $('#fieldStarterOG').val()
+      StarterVol = $('#fieldStarterVol').val()
+      StarterVolUnit = $("#fieldStarterVolMeasureUnit option:selected").val()
+
+      //Normalize Volume - this is horrible code
+      if (StarterVolUnit != 1000) { //If not LITRES
+        if (StarterVolUnit != 0.264) { //If not Gallons
+          if (StarterVolUnit != 1.056) { // If not Quarts
+            StarterVolUnitNormalized = 0.264
+          } else {
+            StarterVolUnitNormalized = 0.25
+          }
+        } else {
+          StarterVolUnitNormalized = 1
+        }
+      } else {
+        StarterVolUnitNormalized = 0.000264
+      }
+
+      //Do the DME Calc
+      StarterDMEmeasureunit = $("#fieldDMEWeightMeasureUnit option:selected").val()
+      StarterVolUnitCorrected = StarterVol * StarterVolUnitNormalized
+      StarterIntermCalc = ((StarterOG - 1) * 1000) * StarterVolUnitCorrected
+      StarterDMEgrams = (((StarterIntermCalc / 44) / StarterDMEmeasureunit) * 100) / 100
+      $('#fieldDMErequired').val(StarterDMEgrams.toFixed(2))
+    }
+
+    function calculateAndUpdateYeastViability() {
+      YeastAgeDays = ((YeastAgeHighRes / 86400000))
+      if (YeastAgeDays < 0) {
+        YeastAgeDays = 0
+      }
+
+      if ($('#fieldCalcYeastByDate').prop('checked') == true) {
+        YeastViabilityPercentage = Math.floor(97 * (Math.pow(2.72, (-0.008) * YeastAgeDays)))
+        $('#fieldYeastViability').val(YeastViabilityPercentage)
+      } else {
+        YeastViabilityPercentage = $('#fieldYeastViability').val()
+      }
+
+      initialYeastBillions = $("#fieldYeastInitialCellCount").val()
+      YeastViableCells = (initialYeastBillions * (YeastViabilityPercentage / 100) * 100) / 100
+
+      $('#fieldViableCellCount').val(YeastViableCells.toFixed(2))
+    }
+
+    function calculateGrowth(AerationType, StarterVolume, AdditionalCellCount) {
+
+      if (StarterVolume <= 0) {
+        return [0, 0, 0, 0]
+      }
+
+      AerationTypeSelected1 = AerationType
+
+      AerationStartVol1 = StarterVolume
+      AerationVolUnitCorrected1 = AerationStartVol1 / StarterVolUnit
+
+      AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 1000) / 1000
+      console.log('Aeration Volume Interim Calc 1 (1)', AerationInterim1Calc1)
+
+      AerationInterim1Calc2 = 12.518 * (Math.pow(AerationInterim1Calc1, -0.458))
+      console.log('Aeration Volume Interim Calc 2 (1)', AerationInterim1Calc2)
+
+      if (YeastViableCells > 1) {
+        AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
+        var totalcellsfin1 = ((YeastViableCells + AdditionalCellCount) * AerationInterim1Calc2) * AerationTypeSelected1
+        var newcells1 = totalcellsfin1 - (YeastViableCells + AdditionalCellCount)
+        var numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
+      } else {
+        var totalcellsfin1 = ((((YeastViableCells + AdditionalCellCount) * AerationInterim1Calc2) * AerationTypeSelected1) * 100) / 100
+        var newcells1 = ((totalcellsfin1 - (YeastViableCells + AdditionalCellCount)) * 100) / 100
+        var numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
+      }
+
+      //Following code is only applicable/required for Type 2 (Stirplate Troester) option
+
+      var local5 = AerationStartVol1 * StarterVolUnitNormalized
+      var local6 = ((StarterOG - 1) * 1000) * local5
+      var int1 = (local6 / 44) / 0.0022
+      var number6 = (YeastViableCells + AdditionalCellCount) / int1
+
+      console.log('Aeration int1 (1)', int1)
+
+      console.log('Aeration number 6 (1)', number6)
+
+      if (AerationTypeSelected1 != 2) { // If Aeration type isn't Type 2 (Stirplate Troester)
+        //Nothing
+        console.log('Aeration (1) - 2 !== AerationTypeSelected1', AerationTypeSelected1)
+      } else {
+        if (number6 > 3.5) {
+          console.log('Aeration (1) - number6 < 3.5')
+          var local9 = 0
+          AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
+          totalcellsfin1 = local9 + (YeastViableCells + AdditionalCellCount)
+          newcells1 = totalcellsfin1 - (YeastViableCells + AdditionalCellCount)
+          numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
+        } else
+        if (number6 < 1.4) {
+          console.log('Aeration (1) - number6 < 1.4')
+          var local9 = 1.4 * int1
+          console.log('Aeration (1) - local9, int1', local9, int1)
+          AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
+          totalcellsfin1 = (local9 + (YeastViableCells + AdditionalCellCount))
+          newcells1 = totalcellsfin1 - (YeastViableCells + AdditionalCellCount)
+          numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
+        } else {
+          console.log('Aeration (1) - number6 >1.4 <3.5')
+          var local9 = (2.33 - (number6 * 0.67)) * int1
+          AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
+          totalcellsfin1 = local9 + (YeastViableCells + AdditionalCellCount)
+          newcells1 = totalcellsfin1 - (YeastViableCells + AdditionalCellCount)
+          numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
+        }
+      }
+      if (number6 != 0) {
+        // Stuff
+      } else {
+        // Stuff
+      }
+
+      return [AerationInterim1Calc1, newcells1, totalcellsfin1, numdoub1];
+    }
+
+    function calculateAndUpdateAeration1() { //inputs: AerationType, YeastCellCount, Starter Vol
+
+      AerationStartVol1 = $('#fieldAerationStartVol1').val()
+      AerationStartVol2 = $('#fieldAerationStartVol2').val()
+      AerationStartVol3 = $('#fieldAerationStartVol3').val()
+
+      AerationTypeSelected1 = $("#fieldMethodOfAeration1 option:selected").val()
+      AerationTypeSelected2 = $("#fieldMethodOfAeration2 option:selected").val()
+      AerationTypeSelected3 = $("#fieldMethodOfAeration3 option:selected").val()
+
+      // Growth 1
+      var GrowthResults1 = calculateGrowth(AerationTypeSelected1, AerationStartVol1, 0) // respond array: AerationInterim1Calc1, newcells1, totalcellsfin1, numdoub1
+
+      $('#fieldAerationInocRate1').val(GrowthResults1[0].toFixed(0))
+      $('#fieldAerationNewCells1').val(GrowthResults1[1].toFixed(0))
+      $('#fieldAerationTotalCells1').val(GrowthResults1[2].toFixed(0))
+      $('#fieldAerationGrowthFactor1').val(GrowthResults1[3].toFixed(2))
+
+      if (GrowthResults1[2] >= BatchYeastCellsNeeded) {
+        $('#fieldAerationTotalCells1').css('color', 'green')
+      } else {
+        $('#fieldAerationTotalCells1').css('color', 'black')
+      }
+
+      // Growth 2
+      var GrowthResults2 = calculateGrowth(AerationTypeSelected2, AerationStartVol2, GrowthResults1[1]) // respond array: AerationInterim1Calc1, newcells1, totalcellsfin1, numdoub1
+
+      $('#fieldAerationInocRate2').val(GrowthResults2[0].toFixed(0))
+      $('#fieldAerationNewCells2').val(GrowthResults2[1].toFixed(0))
+      $('#fieldAerationTotalCells2').val(GrowthResults2[2].toFixed(0))
+      $('#fieldAerationGrowthFactor2').val(GrowthResults2[3].toFixed(2))
+
+      if (GrowthResults2[2] >= BatchYeastCellsNeeded) {
+        $('#fieldAerationTotalCells2').css('color', 'green')
+      } else {
+        $('#fieldAerationTotalCells2').css('color', 'black')
+      }
+
+      // Growth 3
+      var GrowthResults3 = calculateGrowth(AerationTypeSelected3, AerationStartVol3, GrowthResults1[1] + GrowthResults2[1]) // respond array: AerationInterim1Calc1, newcells1, totalcellsfin1, numdoub1
+
+      $('#fieldAerationInocRate3').val(GrowthResults3[0].toFixed(0))
+      $('#fieldAerationNewCells3').val(GrowthResults3[1].toFixed(0))
+      $('#fieldAerationTotalCells3').val(GrowthResults3[2].toFixed(0))
+      $('#fieldAerationGrowthFactor3').val(GrowthResults3[3].toFixed(2))
+
+      if (GrowthResults3[2] >= BatchYeastCellsNeeded) {
+        $('#fieldAerationTotalCells3').css('color', 'green')
+      } else {
+        $('#fieldAerationTotalCells3').css('color', 'black')
+      }
+    }
+
+    function calculateAndUpdateAll() {
+      calculateAndUpdateDMENeeded()
+      calculateAndUpdateCellsNeeded()
+      calculateAndUpdateYeastViability()
+      calculateAndUpdateAeration1()
+    }
+    
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      var expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    
+    function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+    }
+    
+    function savePreferences() {
+      setCookie("BatchVolUnitSelected", BatchVolUnitSelected, 365)
+      setCookie("StarterVolUnit", StarterVolUnit, 365)
+      setCookie("StarterDMEmeasureunit", StarterDMEmeasureunit, 365)
+    }
+    
+    function loadPreferences() {
+      var cookieBatchVolUnitSelected = getCookie("BatchVolUnitSelected");
+      if (cookieBatchVolUnitSelected != "") {
+         BatchVolUnitSelected = cookieBatchVolUnitSelected
+         $('#fieldBatchVolMeasureUnit').val(cookieBatchVolUnitSelected)
+      } 
+      else {
+        $('#fieldBatchVolMeasureUnit').val($("#fieldBatchVolMeasureUnit option:first").val()) //Load default/first option
+      }
+      
+      var cookieStarterVolUnit = getCookie("StarterVolUnit");
+      if (cookieStarterVolUnit != "") {
+         StarterVolUnit = cookieStarterVolUnit
+         $('#fieldStarterVolMeasureUnit').val(cookieStarterVolUnit)
+      } else {
+        $('#fieldStarterVolMeasureUnit').val($("#fieldStarterVolMeasureUnit option:first").val()) //Load default
+      }
+      
+      var cookieStarterDMEmeasureunit = getCookie("StarterDMEmeasureunit");
+      if (cookieStarterDMEmeasureunit != "") {
+         StarterDMEmeasureunit = cookieStarterDMEmeasureunit
+         $('#fieldDMEWeightMeasureUnit').val(cookieStarterDMEmeasureunit)
+      } else {
+         $('#fieldDMEWeightMeasureUnit').val($("#fieldDMEWeightMeasureUnit option:first").val())
+      }
+         
+      calculateAndUpdateAll() //Update display and calulations
+    }
+    
+    function clearPreferences() {
+      document.cookie = "BatchVolUnitSelected=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "StarterVolUnit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "StarterDMEmeasureunit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      loadPreferences() //Reload with defaults
+    }
+
+    //]]>
+  </script>
+</head>
+
+<body>
+  <div class="heading" style="height:auto">
+    <img src=".\img\logo.png" width="30%" style="z-index:1000"></img>
+  </div>
+
+  <div class="containerdiv">
+    <div class="subcontainerdiv">
+      <div id="Preferences" class="sectionleft">
+        <div class="heading">Preferences</div>
+        <div class="sectiongroup">
+          <div class="label">Batch Volume Units:</div>
+          <select id="fieldBatchVolMeasureUnit"></select>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Starter Volume Units:</div>
+          <select id="fieldStarterVolMeasureUnit"></select>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">DME Weight Units:</div>
+          <select id="fieldDMEWeightMeasureUnit"></select>
+        </div>
+         <div class="sectiongroup">
+          <input type="button" id="buttonSavePreferences" style="margin-top: 4px;" value="Save"></input>
+          <input type="button" id="buttonClearPreferences" style="margin-top: 4px;" value="Clear"></input>
+        </div>
+      </div>
+
+      <div id="Wort" class="sectionmiddle">
+        <div class="heading">Wort Properties</div>
+        <div class="sectiongroup">
+          <div class="label">Type of Fermentation</div>
+          <select id="fieldBatchTypeOptions"></select>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Batch Volume</div>
+          <input type="text" id="fieldBatchVol" style="display: inline;" autocomplete="off" autocorrect="off" autocapitalize="off"></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Original Gravity [SG]</div>
+          <input type="text" id="fieldBatchOG" style="display: inline;"></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Optimal Pitching Rate [million/ml]</div>
+          <input type="text" id="fieldBatchOptimalPitchingRate" class="result" readonly></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Yeast Cells needed [billions]</div>
+          <input type="text" id="fieldBatchYeastCellsNeeded" class="result" readonly></input>
+        </div>
+      </div>
+
+      <div id="LiquidYeast" class="sectionmiddle">
+        <div class="heading">Liquid Yeast Properties</div>
+        <div class="label" style="text-align:left;width:100%;display:block;padding:5px">
+          <input type="checkbox" id="fieldCalcYeastByDate">Calculate Viability from Date</input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Initial Cell Count [billions]</div>
+          <input type="text" id="fieldYeastInitialCellCount" style="display: inline;"></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label" id="labelCalcYeastByDate">Production Date</div>
+          <input type="text" id="datePickerYeastProdDate" class="datepicker" style="display: inline;" readonly></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Viability %</div>
+          <input type="text" id="fieldYeastViability" class="result"></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Viable Cell Count [billions]</div>
+          <input type="text" id="fieldViableCellCount" class="result" readonly></input>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="subcontainerdiv">
+
+      <div id="DME" class="sectionleft">
+        <div class="heading">DME Calculator</div>
+        <div class="sectiongroup">
+          <div class="label">Gravity of Starter [SG]:</div>
+          <input type="text" id="fieldStarterOG" value="" autocomplete="off" autocorrect="off" autocapitalize="off"></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Volume of starter:</div>
+          <input type="text" id="fieldStarterVol" value="" autocomplete="off" autocorrect="off" autocapitalize="off"></input>
+        </div>
+        <div class="sectiongroup">
+          <div class="label">Amount of DME to add</div>
+          <input type="text" id="fieldDMErequired" class="result" readonly></input>
+        </div>
+      </div>
+      <div class="sectionmiddle">
+        <div id="Growth1" class="sectionmiddlegrowth">
+          <div class="heading">Growth</div>
+          <div class="heading" style="text-align:left">1st Step</div>
+          <div class="sectiongroup">
+            <div class="label">Method of Aeration</div>
+            <select id="fieldMethodOfAeration1"></select>
+          </div>
+          <div class="sectiongroup">
+            <div class="label" id="dddd">Starter Volume [Litres]</div>
+            <input type="text" id="fieldAerationStartVol1"></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Inoculation Rate [Millions/ml]</div>
+            <input type="text" id="fieldAerationInocRate1" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">New cells created [billions]</div>
+            <input type="text" id="fieldAerationNewCells1" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Total cells at Finish [billions]</div>
+            <input type="text" id="fieldAerationTotalCells1" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Growth Factor</div>
+            <input type="text" id="fieldAerationGrowthFactor1" class="result" readonly></input>
+          </div>
+        </div>
+
+        <div id="Growth2" class="sectionmiddlegrowth">
+          <div class="heading" style="text-align:left">2nd Step</div>
+          <div class="sectiongroup">
+            <div class="label">Method of Aeration</div>
+            <select id="fieldMethodOfAeration2"></select>
+          </div>
+          <div class="sectiongroup">
+            <div class="label" id="dddd">Starter Volume [Litres]</div>
+            <input type="text" id="fieldAerationStartVol2" style="display: inline;"></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Inoculation Rate [Millions/ml]</div>
+            <input type="text" id="fieldAerationInocRate2" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">New cells created [billions]</div>
+            <input type="text" id="fieldAerationNewCells2" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Total cells at Finish [billions]</div>
+            <input type="text" id="fieldAerationTotalCells2" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Growth Factor</div>
+            <input type="text" id="fieldAerationGrowthFactor2" class="result" readonly></input>
+          </div>
+        </div>
+
+        <div id="Growth3" class="sectionmiddlegrowth">
+          <div class="heading" style="text-align:left">3rd Step</div>
+          <div class="sectiongroup">
+            <div class="label">Method of Aeration</div>
+            <select id="fieldMethodOfAeration3"></select>
+          </div>
+          <div class="sectiongroup">
+            <div class="label" id="dddd">Starter Volume [Litres]</div>
+            <input type="text" id="fieldAerationStartVol3"></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Inoculation Rate [Millions/ml]</div>
+            <input type="text" id="fieldAerationInocRate3" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">New cells created [billions]</div>
+            <input type="text" id="fieldAerationNewCells3" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Total cells at Finish [billions]</div>
+            <input type="text" id="fieldAerationTotalCells3" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup">
+            <div class="label">Growth Factor</div>
+            <input type="text" id="fieldAerationGrowthFactor3" class="result" readonly></input>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
