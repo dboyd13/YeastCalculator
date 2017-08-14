@@ -473,23 +473,23 @@
       <div id="Wort" class="sectionmiddle">
         <div class="heading">Wort Properties</div>
         <div class="sectiongroup">
-          <div class="label">Type of Fermentation</div>
+          <div class="label">Type of Fermentation<span class="tooltiptext">Choose your style of beer</span></div>
           <select id="fieldBatchTypeOptions"></select>
         </div>
         <div class="sectiongroup">
-          <div class="label">Batch Volume</div>
+          <div class="label">Batch Volume<span class="tooltiptext">Enter your batch size</span></div>
           <input type="text" id="fieldBatchVol" style="display: inline;" autocomplete="off" autocorrect="off" autocapitalize="off"></input>
         </div>
         <div class="sectiongroup">
-          <div class="label">Original Gravity [SG]</div>
+          <div class="label">Original Gravity [SG]<span class="tooltiptext">Enter the specific gravity of your wort</span></div>
           <input type="text" id="fieldBatchOG" style="display: inline;"></input>
         </div>
         <div class="sectiongroup">
-          <div class="label">Optimal Pitching Rate [million/ml]</div>
+          <div class="label">Optimal Pitching Rate [million/ml]<span class="tooltiptext">Pitching yeast at the proper rate significantly reduces the lag time before active fermentation begins, promotes complete fermentation, reduces the risk of infection, and improves the overall quality of your beer</span></div>
           <input type="text" id="fieldBatchOptimalPitchingRate" class="result" readonly></input>
         </div>
         <div class="sectiongroup">
-          <div class="label">Yeast Cells needed [billions]</div>
+          <div class="label">Yeast Cells needed [billions]<span class="tooltiptext">Number of yeast cells needed to achieve optimal pitching rate</span></div>
           <input type="text" id="fieldBatchYeastCellsNeeded" class="result" readonly></input>
         </div>
       </div>
@@ -500,19 +500,19 @@
           <input type="checkbox" id="fieldCalcYeastByDate">Calculate Viability from Date</input>
         </div>
         <div class="sectiongroup">
-          <div class="label">Initial Cell Count [billions]</div>
+          <div class="label">Initial Cell Count [billions]<span class="tooltiptext">Enter the initial cell count. A White Labs vial or Wyeast smackpack, each contain approximately 100 billion cells. If pitching multiple vials or smackpacks enter the number of cells accordingly</span></div>
           <input type="text" id="fieldYeastInitialCellCount" style="display: inline;"></input>
         </div>
         <div class="sectiongroup">
-          <div class="label" id="labelCalcYeastByDate">Production Date</div>
+          <div class="label" id="labelCalcYeastByDate">Production Date<span class="tooltiptext">Choose a date. For White Labs vials, the production date is 4 months prior to the 'Best Before' date. For Wyeast packs enter the date on the package</span></div>
           <input type="text" id="datePickerYeastProdDate" class="datepicker" style="display: inline;" readonly></input>
         </div>
         <div class="sectiongroup">
-          <div class="label">Viability %</div>
+          <div class="label">Viability %<span class="tooltiptext">This number is valid only for yeast that has been stored under continuous refrigeration.</span></div>
           <input type="text" id="fieldYeastViability" class="result"></input>
         </div>
         <div class="sectiongroup">
-          <div class="label">Viable Cell Count [billions]</div>
+          <div class="label">Viable Cell Count [billions]<span class="tooltiptext">Estimated number of viable yeast cells</span></div>
           <input type="text" id="fieldViableCellCount" class="result" readonly></input>
         </div>
       </div>
@@ -524,7 +524,7 @@
       <div id="DME" class="sectionleft">
         <div class="heading">DME Calculator</div>
         <div class="sectiongroup">
-          <div class="label">Gravity of Starter [SG]:</div>
+          <div class="label">Gravity of Starter [SG]:<span class="tooltiptext">Enter the Gravity of your starter wort, a standard starter is between 1.030 and 1.040</span></div>
           <input type="text" id="fieldStarterOG" value="" autocomplete="off" autocorrect="off" autocapitalize="off"></input>
         </div>
         <div class="sectiongroup">
@@ -541,23 +541,23 @@
           <div class="heading">Growth</div>
           <div class="heading" style="text-align:left">1st Step</div>
           <div class="sectiongroup">
-            <div class="label">Method of Aeration</div>
+            <div class="label">Method of Aeration<span class="tooltiptext">Choose your method of aeration</span></div>
             <select id="fieldMethodOfAeration1"></select>
           </div>
           <div class="sectiongroup">
-            <div class="label" id="dddd">Starter Volume [Litres]</div>
+            <div class="label" id="dddd">Starter Volume [Litres]<span class="tooltiptext">Enter the volume of your initial starter</span></div>
             <input type="text" id="fieldAerationStartVol1"></input>
           </div>
           <div class="sectiongroup">
-            <div class="label">Inoculation Rate [Millions/ml]</div>
+            <div class="label">Inoculation Rate [Millions/ml]<span class="tooltiptext">To maximize the health and vitality of the yeast, keep the inoculation rate between 25 and 100 million cells per ml</span></div>
             <input type="text" id="fieldAerationInocRate1" class="result" readonly></input>
           </div>
           <div class="sectiongroup">
-            <div class="label">New cells created [billions]</div>
+            <div class="label">New cells created [billions]<span class="tooltiptext">Estimated number of new yeast cells created</span></div>
             <input type="text" id="fieldAerationNewCells1" class="result" readonly></input>
           </div>
           <div class="sectiongroup">
-            <div class="label">Total cells at Finish [billions]</div>
+            <div class="label">Total cells at Finish [billions]<span class="tooltiptext">Estimated number yeast at the end of fermentation</span></div>
             <input type="text" id="fieldAerationTotalCells1" class="result" readonly></input>
           </div>
           <div class="sectiongroup">
@@ -573,11 +573,11 @@
             <select id="fieldMethodOfAeration2"></select>
           </div>
           <div class="sectiongroup">
-            <div class="label" id="dddd">Starter Volume [Litres]</div>
+            <div class="label" id="dddd">Starter Volume [Litres]<span class="tooltiptext">Enter the volume of new wort added. For best results, decant the spent wort from the previous step before adding more</span></div>
             <input type="text" id="fieldAerationStartVol2" style="display: inline;"></input>
           </div>
           <div class="sectiongroup">
-            <div class="label">Inoculation Rate [Millions/ml]</div>
+            <div class="label">Inoculation Rate [Millions/ml]<span class="tooltiptext">To maximize the health and vitality of the yeast, keep the inoculation rate between 25 and 100 million cells per ml</span></div>
             <input type="text" id="fieldAerationInocRate2" class="result" readonly></input>
           </div>
           <div class="sectiongroup">
@@ -605,7 +605,7 @@
             <input type="text" id="fieldAerationStartVol3"></input>
           </div>
           <div class="sectiongroup">
-            <div class="label">Inoculation Rate [Millions/ml]</div>
+            <div class="label">Inoculation Rate [Millions/ml]<span class="tooltiptext">To maximize the health and vitality of the yeast, keep the inoculation rate between 25 and 100 million cells per ml</span></div>
             <input type="text" id="fieldAerationInocRate3" class="result" readonly></input>
           </div>
           <div class="sectiongroup">
