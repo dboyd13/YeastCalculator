@@ -4,9 +4,31 @@ body {
   background-color: #69C;
 }
 
+ /* unvisited link */
+a:link {
+    color: #A8A8A8;
+}
+
+/* visited link */
+a:visited {
+    color: #A8A8A8;
+}
+
+/* mouse over link */
+a:hover {
+    color: black;
+}
+
+/* selected link */
+a:active {
+    color: black;
+} 
+
 img {
   -webkit-filter: drop-shadow(5px 5px 5px #222);
   filter: drop-shadow(5px 5px 5px #222);
+  min-width: 140px;
+  max-width: 345px;
 }
 
 div.containerdiv {

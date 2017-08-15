@@ -134,8 +134,13 @@
 
       TodaysDate = new Date()
       datepicker.setDate(TodaysDate)
-
+      $('#datePickerYeastProdDate').val(datepicker.getDate().toLocaleDateString())
+      
       //Setup event triggers
+      $('#datePickerYeastProdDate').change(function() {
+        $('#datePickerYeastProdDate').val(datepicker.getDate().toLocaleDateString())
+      });
+      
       $('#fieldCalcYeastByDate').change(function() {
 
         if ($('#datePickerYeastProdDate').css('visibility') == 'visible') {
@@ -445,7 +450,7 @@
 
 <body>
   <div class="heading" style="height:auto">
-    <img src=".\img\logo.png" width="30%" style="z-index:1000"></img>
+    <img src=".\img\logo.png" width="30%"></img>
   </div>
 
   <div class="containerdiv">
@@ -619,6 +624,13 @@
           <div class="sectiongroup">
             <div class="label">Growth Factor</div>
             <input type="text" id="fieldAerationGrowthFactor3" class="result" readonly></input>
+          </div>
+          <div class="sectiongroup" style="width:100%; margin: 0 auto; text-align: center; color:#A8A8A8">
+            <br>
+            <a target="_blank" href="https://github.com/dboyd13/YeastCalculator">GitHub Project</a> by <a target="_blank" href="https://twitter.com/d_b">Darran Boyd.</a>
+            <br>Based on the Flash based version by Dustin J. Sullivan (yeastcalc.com), then re-hosted at YeastCalculator.com by
+            <a target="_blank" href="http://www.homebrewtalk.com/members/TallDan/">TallDan</a>
+            <br>
           </div>
         </div>
       </div>
