@@ -20,10 +20,16 @@
 
     // DME Calculator - initial/default values
     var StarterOG = 1.037
-    var StarterVol = 2.0
+    var StarterVolLitreDefault = 2
+    var StarterVolMLDefault = 2000
+    var StarterVolQuartDefault = 2
+    var StarterVolGallonDefault = 0.5 
+    var StarterVol
 
     // Wort Properties - initial/default values
-    var BatchVol = 21
+    var BatchVolGallonDefault = 5.5
+    var BatchVolLitreDefault = 21
+    var BatchVol
     var BatchOG = 1.054
 
     //Liquid Yeast Properties - initial/default values
@@ -92,19 +98,17 @@
       $('#fieldMethodOfAeration1').html(AerationMethodOptions)
       $('#fieldMethodOfAeration2').html(AerationMethodOptions)
       $('#fieldMethodOfAeration3').html(AerationMethodOptions)
-
+      
       //Populate fields with default/initial values
-      $('#fieldBatchVol').val(BatchVol)
       $('#fieldBatchOG').val(BatchOG)
       $('#fieldStarterOG').val(StarterOG)
-      $('#fieldStarterVol').val(StarterVol)
       $('#fieldYeastInitialCellCount').val(initialYeastBillions)
       $('#fieldCalcYeastByDate').prop('checked', true)
       $('#fieldYeastViability').prop('disabled', true)
       $('#fieldAerationStartVol1').val(AerationStartVol1)
       $('#fieldAerationStartVol2').val(AerationStartVol2)
       $('#fieldAerationStartVol3').val(AerationStartVol3)
-
+      
       //If preferences have been saved (in cookie) then load them
       loadPreferences()
       
@@ -154,6 +158,32 @@
         }
         calculateAndUpdateYeastViability()
       });
+      
+      $('#fieldBatchVolMeasureUnit').change(function() {
+          if ($('#fieldBatchVolMeasureUnit option:selected').text() == "Litres") {
+            BatchVol = BatchVolLitreDefault
+          } else {
+            BatchVol = BatchVolGallonDefault
+          }
+          $('#fieldBatchVol').val(BatchVol)
+      });
+      
+      $('#fieldStarterVolMeasureUnit').change(function() {
+          if ($('#fieldStarterVolMeasureUnit option:selected').text() == "Litres") {
+            StarterVol = StarterVolLitreDefault
+          }
+          else if ($('#fieldStarterVolMeasureUnit option:selected').text() == "ml") {
+            StarterVol = StarterVolMLDefault
+          }
+          else if ($('#fieldStarterVolMeasureUnit option:selected').text() == "Gallons") {
+            StarterVol = StarterVolGallonDefault
+          }
+          else if ($('#fieldStarterVolMeasureUnit option:selected').text() == "Quarts") {
+            StarterVol = StarterVolQuartDefault         
+          }
+            
+          $('#fieldStarterVol').val(StarterVol)
+      });
 
       $("select").change(function() {
         calculateAndUpdateAll()
@@ -169,10 +199,6 @@
       $('#buttonClearPreferences').click(function() {
         clearPreferences()
       });
-
-//       $('#buttonOpenOptions').click(function() {
-//         $('#Preferences').toggle()
-//       });
 
       //Manually trigger methods for inital load
       calculateAndUpdateAll()
@@ -253,10 +279,10 @@
       AerationVolUnitCorrected1 = AerationStartVol1 / StarterVolUnit
 
       AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 1000) / 1000
-      console.log('Aeration Volume Interim Calc 1 (1)', AerationInterim1Calc1)
+      //console.log('Aeration Volume Interim Calc 1 (1)', AerationInterim1Calc1)
 
       AerationInterim1Calc2 = 12.518 * (Math.pow(AerationInterim1Calc1, -0.458))
-      console.log('Aeration Volume Interim Calc 2 (1)', AerationInterim1Calc2)
+      //console.log('Aeration Volume Interim Calc 2 (1)', AerationInterim1Calc2)
 
       if (YeastViableCells > 1) {
         AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
@@ -276,16 +302,16 @@
       var int1 = (local6 / 44) / 0.0022
       var number6 = (YeastViableCells + AdditionalCellCount) / int1
 
-      console.log('Aeration int1 (1)', int1)
+      //console.log('Aeration int1 (1)', int1)
 
-      console.log('Aeration number 6 (1)', number6)
+      //console.log('Aeration number 6 (1)', number6)
 
       if (AerationTypeSelected1 != 2) { // If Aeration type isn't Type 2 (Stirplate Troester)
         //Nothing
-        console.log('Aeration (1) - 2 !== AerationTypeSelected1', AerationTypeSelected1)
+        //console.log('Aeration (1) - 2 !== AerationTypeSelected1', AerationTypeSelected1)
       } else {
         if (number6 > 3.5) {
-          console.log('Aeration (1) - number6 < 3.5')
+          //console.log('Aeration (1) - number6 < 3.5')
           var local9 = 0
           AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
           totalcellsfin1 = local9 + (YeastViableCells + AdditionalCellCount)
@@ -293,15 +319,15 @@
           numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
         } else
         if (number6 < 1.4) {
-          console.log('Aeration (1) - number6 < 1.4')
+          //console.log('Aeration (1) - number6 < 1.4')
           var local9 = 1.4 * int1
-          console.log('Aeration (1) - local9, int1', local9, int1)
+          //console.log('Aeration (1) - local9, int1', local9, int1)
           AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
           totalcellsfin1 = (local9 + (YeastViableCells + AdditionalCellCount))
           newcells1 = totalcellsfin1 - (YeastViableCells + AdditionalCellCount)
           numdoub1 = ((newcells1 / (YeastViableCells + AdditionalCellCount)) * 100) / 100
         } else {
-          console.log('Aeration (1) - number6 >1.4 <3.5')
+          //console.log('Aeration (1) - number6 >1.4 <3.5')
           var local9 = (2.33 - (number6 * 0.67)) * int1
           AerationInterim1Calc1 = (((YeastViableCells + AdditionalCellCount) / AerationVolUnitCorrected1) * 10) / 10
           totalcellsfin1 = local9 + (YeastViableCells + AdditionalCellCount)
@@ -408,28 +434,66 @@
     }
     
     function loadPreferences() {
+      
+      //Batch Volume Units
+      
       var cookieBatchVolUnitSelected = getCookie("BatchVolUnitSelected");
+      
+      // If there is a Batch Volume Unit cookie, then use it
       if (cookieBatchVolUnitSelected != "") {
          BatchVolUnitSelected = cookieBatchVolUnitSelected
          $('#fieldBatchVolMeasureUnit').val(cookieBatchVolUnitSelected)
       } 
-      else {
-        $('#fieldBatchVolMeasureUnit').val($("#fieldBatchVolMeasureUnit option:first").val()) //Load default/first option
+      else { // Else, default Batch Volume Unit to default
+        $('#fieldBatchVolMeasureUnit').val($("#fieldBatchVolMeasureUnit option:first").val()) //Load default first option
       }
       
+      // If the Batch Volume Unit is Litres then, set Litre volume default
+      if ($('#fieldBatchVolMeasureUnit option:selected').text() == "Litres") {
+        BatchVol = BatchVolLitreDefault
+      } else { //Else, set to Gallon volume default
+        BatchVol = BatchVolGallonDefault
+      }
+      
+      // Update the Batch Volume field
+      $('#fieldBatchVol').val(BatchVol)
+      
+      //Starter Volume Units
+      
       var cookieStarterVolUnit = getCookie("StarterVolUnit");
+      
+      // If there is a Starter Volume Unit cookie, then use it
       if (cookieStarterVolUnit != "") {
          StarterVolUnit = cookieStarterVolUnit
          $('#fieldStarterVolMeasureUnit').val(cookieStarterVolUnit)
-      } else {
+      } else { //Else, default Starter Volume Unit to default
         $('#fieldStarterVolMeasureUnit').val($("#fieldStarterVolMeasureUnit option:first").val()) //Load default
       }
       
+      // IF the Starter Volume Unit is Litres then, set Litre volume default
+      if ($('#fieldStarterVolMeasureUnit option:selected').text() == "Litres") {
+        StarterVol = StarterVolLitreDefault
+      } //Else, If ML, then set ML volume default
+      else if ($('#fieldStarterVolMeasureUnit option:selected').text() == "ml") {
+        StarterVol = StarterVolMLDefault
+      } //Else, if Gallons, then set the Gallons volume default
+      else if ($('#fieldStarterVolMeasureUnit option:selected').text() == "Gallons") {
+        StarterVol = StarterVolGallonDefault
+      } //Else, if Quarts, then set the Quarts volume default
+      else if ($('#fieldStarterVolMeasureUnit option:selected').text() == "Quarts") {
+        StarterVol = StarterVolQuartDefault         
+      }
+
+      //Update the Starter Volume field
+      $('#fieldStarterVol').val(StarterVol)
+      
       var cookieStarterDMEmeasureunit = getCookie("StarterDMEmeasureunit");
+      
+      // If there is a DME Unit cookie, then use it
       if (cookieStarterDMEmeasureunit != "") {
          StarterDMEmeasureunit = cookieStarterDMEmeasureunit
          $('#fieldDMEWeightMeasureUnit').val(cookieStarterDMEmeasureunit)
-      } else {
+      } else { //Else, default DME Unit to default
          $('#fieldDMEWeightMeasureUnit').val($("#fieldDMEWeightMeasureUnit option:first").val())
       }
          
