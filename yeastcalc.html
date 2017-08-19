@@ -212,11 +212,12 @@
       BatchVolUnitCorrected = BatchVol * BatchVolUnitSelected
       BatchTypeSelected = $("#fieldBatchTypeOptions option:selected").val()
       BatchInterimCalc1 = ((BatchOG * 668.72) - 463.37) - (205.347 * (BatchOG * BatchOG))
-
+      
       BatchYeastCellsNeeded = (BatchVolUnitCorrected * (BatchInterimCalc1 * BatchTypeSelected)) / 1000000000
       $('#fieldBatchYeastCellsNeeded').val(BatchYeastCellsNeeded.toFixed(0))
 
-      BatchOptimalPitchingRate = (((BatchYeastCellsNeeded / BatchVol) * 10) / 10)
+      BatchOptimalPitchingRate = ((((BatchYeastCellsNeeded * 1000)/ BatchVolUnitCorrected) * 10) / 10)
+
       $('#fieldBatchOptimalPitchingRate').val(BatchOptimalPitchingRate.toFixed(1))
     }
 
