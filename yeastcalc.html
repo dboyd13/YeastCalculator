@@ -3,6 +3,7 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <link rel="stylesheet" href="./css/normalize.css">
   <link rel="stylesheet" href="./css/yeastcalc.css">
   <link rel="stylesheet" href="./css/pikaday.css">
   <script type="text/javascript" src="./js/jquery-1.9.1.js"></script>
@@ -116,13 +117,13 @@
       var datepicker = new Pikaday({
         field: $('#datePickerYeastProdDate')[0],
         format: 'D/M/YYYY',
-        toString(date, format) {
+        toString: function(date, format) {
           const day = date.getDate();
           const month = date.getMonth() + 1;
           const year = date.getFullYear();
-          return `${day}/${month}/${year}`;
+          return '${day}/${month}/${year}';
         },
-        parse(dateString, format) {
+        parse: function(dateString, format) {
           // dateString is the result of `toString` method
           const parts = dateString.split('/');
           const day = parseInt(parts[0], 10);
