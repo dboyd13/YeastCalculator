@@ -1,6 +1,6 @@
 # YeastCalculator
 
-[Live Demo](https://dboyd13.github.io/YeastCalculator/yeastcalc.html)
+[Live Demo](http://yeast.ninja)
 
 This is a Yeast Calculator based on HTML, CSS and jQuery.
 
