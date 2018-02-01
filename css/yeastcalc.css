@@ -1,7 +1,7 @@
 /* Optimize for desktop browsers */
 
 body {
-  background-color: #69C;
+  background-color: #FFFFFF;
 }
 
  /* unvisited link */
@@ -27,8 +27,9 @@ a:active {
 img {
   -webkit-filter: drop-shadow(5px 5px 5px #222);
   filter: drop-shadow(5px 5px 5px #222);
-  min-width: 140px;
-  max-width: 345px;
+  min-width: 100px; 
+  /* display: none; */
+  /*max-width: 345px; */
 }
 
 div.containerdiv {
@@ -49,45 +50,48 @@ div.sectionleft {
   float: left;
   display: block;
   width: 110px;
-  background-color: #fcfcfc;
+  background-color: #404040;
   margin: 5px;
   padding: 5px;
   font-size: 13px;
-  border: 1px solid lightgray;
+  border: 3px solid lightgray;
   border-radius: 8px;
 }
 
 div.sectionmiddle {
   display: inline-block;
   width: 70%;
-  background-color: #fcfcfc;
+  background-color: #404040;
   margin: 5px;
   padding: 5px;
   font-size: 13px;
-  border: 1px solid lightgray;
+  border: 3px solid lightgray;
   border-radius: 8px;
 }
 
 div.sectionmiddlegrowth {
   display: inline-block;
-  background-color: #fcfcfc;
+  background-color: #404040;
   font-size: 13px;
   border-bottom: 1px solid lightgray;
   width: 100%;
+  padding-bottom: 10px;
 }
 
 div.label {
     position: relative;
     display: inline-block;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  vertical-align: bottom;
-  display: table-cell;
-  text-align: center;
-  margin: 0;
-  width: 70px;
-  height: auto;
-  font-size: 12px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    vertical-align: bottom;
+    display: table-cell;
+    text-align: center;
+    margin: 0;
+    width: 70px;
+    height: auto;
+    font-size: 11px;
+    font-family: Lato, sans-serif;
+    color: #ccc;
 }
 
 
@@ -138,9 +142,12 @@ div.heading {
   display: block;
   margin: 0px;
   height: 30px;
-  font-size: 15px;
+  font-size: 14px;
   text-align: center;
   font-weight: bold;
+  font-family: Lato, sans-serif;
+  text-transform: uppercase;
+  color: #fff;
 }
 
 input[type=text] {
@@ -152,13 +159,13 @@ input[type=text] {
   height: 26px;
   line-height: 26px;
   font-size: 12px;
-  border: 1px solid lightblue;
+  border: 1px solid #bbb;
 }
 
 input.result {
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: lightyellow;
+  background-color: #d5e9f7;
   color: black;
   display: block;
   margin: 0;
@@ -175,10 +182,10 @@ input.result {
   div.sectionleft {
     display: inline-block;
     width: 100%;
-    background-color: #fcfcfc;
+    background-color: #404040;
     padding: 5px;
     font-size: 13px;
-    border: 1px solid lightgray;
+    border: 3px solid lightgray;
     border-radius: 8px;
   }
   div.containerdiv {
